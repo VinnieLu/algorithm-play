@@ -1,3 +1,298 @@
+You know about simple Array.diff task. Now try to solve enhanced version!
+
+Your goal in this kata is to implement a difference function, which subtracts one list from another.
+
+It should remove all values from list a, which are present in list b. Each element x in both arrays is integer and 0 ≤ x ≤ 25. And lengths of arrays can reach 5 000 000 elements.
+
+array_diff_very_fast([1,2],[1]) == [2]
+If a value is present in b, all of its occurrences must be removed from another:
+
+array_diff_very_fast([1,2,2,2,3],[2]) == [1,3]
+
+
+function array_diff_very_fast(a, b) {
+  var count = {}
+  for (var i = 0; i < b.length; i++) {
+    if (typeof (count[b[i]]) === "undefined") {
+      count[b[i]] = -1
+    }
+  }
+  var final = []
+  for (var j = 0; j < a.length; j++) {
+    if (typeof (count[a[j]]) === "undefined") {
+      final.push(a[j])
+    }
+  }
+  return final
+}
+
+
+
+
+
+
+Pig latin is created by taking all the consonants before the first vowel of a word and moving them to the back of the word followed by the letters "ay".
+
+"hello" => "ellohay"
+"creating" => "eatingcray"
+If the first letter of the word is a vowel, the string is left the same and the letters "way" are appended to the end.
+
+"algorithm" => "algorithmway"
+This problem is different from other variations in that it expects casing to remain the same so:
+
+"Hello World" => "Ellohay Orldway"
+as well as punctuation.
+
+"Pizza? Yes please!" => "Izzapay? Esyay easeplay!"
+Your job is to take a string and translate it to Pig Latin. The string will never be undefined but may contain both numbers and letters. A word will never be a combination of numbers and letters. Also, there will never be punctuation at the beginning of a word and the only capital letter in a word will be the first letter meaning there are zero all capitalized words.
+
+
+
+function translate(sentence) {
+  var split = sentence.split(" ")
+  var final = []
+  for (var i = 0; i < split.length; i++) {
+    var substring = split[i]
+    var downCase = true
+    var punctuation = ""
+    for (var l = split[i].length - 1; l >= 0; l--) {
+      if ((split[i][l]).toLowerCase() === (split[i][l]).toUpperCase()) {
+        punctuation = split[i][split[i].length-1] + punctuation
+        substring = substring.substring(0, substring.length-1)
+      } else {
+        l = -1
+      }
+    }
+    for (var j = 0; j < split[i].length; j++) {
+      if (split[i][j].toUpperCase() === split[i][j]) {
+        downCase = false
+      }
+      if (split[i][j].toLowerCase() === "a" || split[i][j].toLowerCase() === "e" || split[i][j].toLowerCase() === "i" || split[i][j].toLowerCase() === "o" || split[i][j].toLowerCase() === "u") {
+        if (j === 0) {
+          substring += "way"
+          j = split[i].length
+        } else {
+          substring += "ay"
+          j = split[i].length
+        }
+      } else {
+        substring = substring.substring(1, substring.length) + substring.substring(0, 1).toLowerCase()
+      }
+    }
+    if (downCase === false) {
+      substring = substring[0].toUpperCase() + substring.substring(1, substring.length)
+    }
+    substring = substring + punctuation
+    final.push(substring)
+  }
+  return final.join(" ")
+};
+
+
+
+
+
+
+Background
+There is a message that is circulating via public media that claims a reader can easily read a message where the inner letters of each words is scrambled, as long as the first and last letters remain the same and the word contains all the letters.
+
+Another example shows that it is quite difficult to read the text where all the letters are reversed rather than scrambled.
+
+In this kata we will make a generator that generates text in a similar pattern, but instead of scrambled or reversed, ours will be sorted alphabetically
+
+Requirement
+return a string where:
+1) the first and last characters remain in original place for each word
+2) characters between the first and last characters must be sorted alphabetically
+3) punctuation should remain at the same place as it started, for example: shan't -> sahn't
+
+Assumptions
+1) words are seperated by single spaces
+2) only spaces separate words, special characters do not, for example: tik-tak -> tai-ktk
+3) special characters do not take the position of the non special characters, for example: -dcba -> -dbca
+4) for this kata puctuation is limited to 4 characters: hyphen(-), apostrophe('), comma(,) and period(.) 
+5) ignore capitalisation
+
+
+
+ScrambleWords = function(str){
+  var split = str.split(" ")
+  var final = []
+  for (var i = 0; i < split.length; i++) {
+    var punctuation = []
+    var complete = ""
+    var middle = []
+    for (var j = 0; j < split[i].length; j++) {
+      if (split[i][split[i].length - 1] === "-" || split[i][split[i].length - 1] === "'" || split[i][split[i].length - 1] === "," || split[i][split[i].length - 1] === ".") {
+        punctuation.push([split[i][split[i].length-1], split[i].length-1])
+        split[i] = split[i].substring(0, split[i].length - 1)
+        j -= 1
+      } else if (split[i][j] === "-" || split[i][j] === "'" || split[i][j] === "," || split[i][j] === ".") {
+        punctuation.push([split[i][j], j])
+        if (j === 0) {
+          split[i] = split[i].substring(1, split[i].length)
+        } else {
+          split[i] = split[i].substring(0, j) + split[i].substring(j + 1, split[i].length)
+        }
+        j -= 1
+      } else if ((j === 0) || (j === split[i].length - 1)) {
+        complete += split[i][j]
+      } else {
+        middle.push(split[i][j])
+      }
+    }
+    middle.sort()
+    middle.push(complete[1])
+    middle.unshift(complete[0])
+    for (var x = 0; x < punctuation.length; x++) {
+      middle.splice(punctuation[x][1], 0, punctuation[x][0])
+    }
+    final.push(middle.join(""))
+  }
+  return final.join(" ")
+};
+
+
+
+
+Let's make a function called compose that accepts a value as a parameter, as well as any number of functions as additional parameters.
+
+The function will return the value that results from the first parameter being used as a parameter for all of the accepted function parameters in turn. So:
+
+var doubleTheValue = function(val) { return val * 2; }
+var addOneToTheValue = function(val) { return val + 1; }
+
+compose(5, doubleTheValue) // should === 10
+compose(5, doubleTheValue, addOneToTheValue) // should === 11
+If only a single parameter is passed in, return that parameter.
+
+
+var compose = function() {
+  var final = arguments[0]
+  for (var i = 1; i < arguments.length; i++) {
+    final = arguments[i](final)
+  }
+  return final
+}
+
+
+
+Story
+A freak power outage at the zoo has caused all of the electric cage doors to malfunction and swing open...
+
+All the animals are out and some of them are eating each other!
+
+It's a Zoo Disaster!
+Here is a list of zoo animals, and what they can eat
+
+antelope eats grass
+big-fish eats little-fish
+bug eats leaves
+bear eats big-fish
+bear eats bug
+bear eats chicken
+bear eats cow
+bear eats leaves
+bear eats sheep
+chicken eats bug
+cow eats grass
+fox eats chicken
+fox eats sheep
+giraffe eats leaves
+lion eats antelope
+lion eats cow
+panda eats leaves
+sheep eats grass
+Kata Task
+INPUT
+A comma-separated string representing all the things at the zoo
+
+TASK
+Figure out who eats who until no more eating is possible.
+
+OUTPUT
+A list of strings (refer to the example below) where:
+
+The first element is the initial zoo (same as INPUT)
+The last element is a comma-separated string of what the zoo looks like when all the eating has finished
+All other elements (2nd to last-1) are of the form X eats Y describing what happened
+Notes
+Animals can only eat things beside them
+
+Animals always eat to their LEFT before eating to their RIGHT
+
+Always the LEFTMOST animal capable of eating will eat before any others
+
+Any other things you may find at the zoo (which are not listed above) do not eat anything and are not edible
+
+Example
+INPUT 
+"fox,bug,chicken,grass,sheep"
+1 fox can't eat bug 
+"fox,bug,chicken,grass,sheep"
+2 bug can't eat anything  
+"fox,bug,chicken,grass,sheep"
+3 chicken eats bug  
+"fox,chicken,grass,sheep"
+4 fox eats chicken  
+"fox,grass,sheep"
+5 fox can't eat grass 
+"fox,grass,sheep"
+6 grass can't eat anything  
+"fox,grass,sheep"
+7 sheep eats grass  
+"fox,sheep"
+8 fox eats sheep  
+"fox"
+OUTPUT  
+["fox,bug,chicken,grass,sheep", "chicken eats bug", "fox eats chicken", "sheep eats grass", "fox eats sheep", "fox"]
+
+
+var whoEatsWho = function(zoo) {
+  var eats = { "antelope": ["grass"],
+"big-fish": ["little-fish"],
+"bug": ["leaves"],
+"bear": ["big-fish", "bug", "chicken", "cow", "leaves", "sheep"],
+"chicken": ["bug"],
+"cow": ["grass"],
+"fox": ["chicken", "sheep"],
+"giraffe": ["leaves"],
+"lion": ["antelope", "cow"],
+"panda": ["leaves"],
+"sheep": ["grass"] }
+  var final = [zoo]
+  var split = zoo.split(",")
+  for (var i = 0; i < split.length; i++) {
+    if ((split[i-1]) && (eats[split[i]])) {
+      if (eats[split[i]].includes(split[i-1])) {
+        final.push(split[i] + " eats " + split[i-1])
+        split.splice(i-1, 1)
+        i = -1
+      }
+    }
+    if (i >= 0) {
+      if ((split[i+1]) && (eats[split[i]])) {
+        if (eats[split[i]].includes(split[i+1])) {
+          final.push(split[i] + " eats " + split[i+1])
+          split.splice(i+1, 1)
+          i = -1
+        }
+      }
+    }
+  }
+  var string = ""
+  for (var g = 0; g < split.length; g++) {
+    string += split[g] + ","
+  }
+  final.push(string.substring(0, string.length-1))
+  return final
+}
+
+
+
+
+
+
 
 
 Pig latin is created by taking all the consonants before the first vowel of a word and moving them to the back of the word followed by the letters "ay".
