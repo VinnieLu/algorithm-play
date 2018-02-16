@@ -802,3 +802,65 @@ function hamsterMe(code, message) {
   }
   return final
 }
+
+
+
+
+Background
+There is a message that is circulating via public media that claims a reader can easily read a message where the inner letters of each words is scrambled, as long as the first and last letters remain the same and the word contains all the letters.
+
+Another example shows that it is quite difficult to read the text where all the letters are reversed rather than scrambled.
+
+In this kata we will make a generator that generates text in a similar pattern, but instead of scrambled or reversed, ours will be sorted alphabetically
+
+Requirement
+return a string where:
+1) the first and last characters remain in original place for each word
+2) characters between the first and last characters must be sorted alphabetically
+3) punctuation should remain at the same place as it started, for example: shan't -> sahn't
+
+Assumptions
+1) words are seperated by single spaces
+2) only spaces separate words, special characters do not, for example: tik-tak -> tai-ktk
+3) special characters do not take the position of the non special characters, for example: -dcba -> -dbca
+4) for this kata puctuation is limited to 4 characters: hyphen(-), apostrophe('), comma(,) and period(.) 
+5) ignore capitalisation
+
+for reference: http://en.wikipedia.org/wiki/Typoglycemia
+
+ScrambleWords = function(str){
+  var split = str.split(" ")
+  var final = []
+  for (var i = 0; i < split.length; i++) {
+    var punctuation = []
+    var complete = ""
+    var middle = []
+    for (var j = 0; j < split[i].length; j++) {
+      if (split[i][split[i].length - 1] === "-" || split[i][split[i].length - 1] === "'" || split[i][split[i].length - 1] === "," || split[i][split[i].length - 1] === ".") {
+        punctuation.push([split[i][split[i].length-1], split[i].length-1])
+        split[i] = split[i].substring(0, split[i].length - 1)
+        j -= 1
+      } else if (split[i][j] === "-" || split[i][j] === "'" || split[i][j] === "," || split[i][j] === ".") {
+        punctuation.push([split[i][j], j])
+        if (j === 0) {
+          split[i] = split[i].substring(1, split[i].length)
+        } else {
+          split[i] = split[i].substring(0, j) + split[i].substring(j + 1, split[i].length)
+        }
+        j -= 1
+      } else if ((j === 0) || (j === split[i].length - 1)) {
+        complete += split[i][j]
+      } else {
+        middle.push(split[i][j])
+      }
+    }
+    middle.sort()
+    middle.push(complete[1])
+    middle.unshift(complete[0])
+    for (var x = 0; x < punctuation.length; x++) {
+      middle.splice(punctuation[x][1], 0, punctuation[x][0])
+    }
+    final.push(middle.join(""))
+  }
+  return final.join(" ")
+};
